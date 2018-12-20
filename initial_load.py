@@ -1,7 +1,7 @@
 from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.sql import SparkSession, SQLContext
-
+import datetime
 
 # Run script by using:
 # spark-submit --packages mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0 initial_load.py
@@ -48,6 +48,14 @@ def main():
 	promotion_df.write.format("com.databricks.spark.avro").save("file:///home/arthurshing/foodmart/case_study/raw/promotion")
 	sales_1997_df.write.format("com.databricks.spark.avro").save("file:///home/arthurshing/foodmart/case_study/raw/sales97")
 	sales_1998_df.write.format("com.databricks.spark.avro").save("file:///home/arthurshing/foodmart/case_study/raw/sales98")
+
+	pmax = promotion_df.agg({"last_update_date": "max"})
+	s97max = sales_1997_df.agg({"last_update_date": "max"})
+	s98max = sales_1998_df.agg({"last_update_date": "max"})
+	
+	pmax.write.option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save("file:///home/arthurshing/foodmart/case_study/last_updated_dates/promotion")
+	s97max.write.option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save("file:///home/arthurshing/foodmart/case_study/last_updated_dates/sales97")
+	s98max.write.option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save("file:///home/arthurshing/foodmart/case_study/last_updated_dates/sales98")
 
 
 
