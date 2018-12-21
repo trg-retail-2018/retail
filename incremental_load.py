@@ -7,7 +7,7 @@ import os
 
 
 # Run script by using:
-# spark-submit --packages mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0 initial_load.py
+# spark-submit --packages mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0 incremental_load.py
 
 #Main function
 def main():
