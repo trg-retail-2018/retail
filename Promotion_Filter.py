@@ -49,7 +49,8 @@ def main():
 
     final_DF=pro_df.join(sales_DF, pro_df.promotion_id == sales_DF.promotion_id).drop(sales_DF.promotion_id)
 
-    final_DF.write.mode("append").format("parquet").save("file://" + home + "foodmart/case_study/cleansed/")
+    # MAKE SURE YOU CREATE THE DIRECTORY FIRST, BECAUSE THIS IS APPENDING
+    final_DF.write.mode("append").format("parquet").save("file://" + home + "/foodmart/case_study/cleansed/")
 
     # *******************************************************************
     # *******************************************************************
