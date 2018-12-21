@@ -3,6 +3,8 @@ from pyspark.sql import SQLContext
 from pyspark.sql import SparkSession, SQLContext
 from pyspark.sql.types import *
 from pyspark.sql.functions import *
+import os
+
 
 # Run script by using:
 # spark-submit --packages mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0 Promotion_Filter.py
