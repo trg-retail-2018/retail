@@ -22,10 +22,7 @@ def main():
     password = "itversity"
 
     # Read the last updated dates from a file
-    try:
-    	home = os.path.expandvars("$HOME")
-    except e:
-    	print("Could not find home path")
+    home = os.path.expandvars("$HOME")
 
     # STEP 2 - Load S3 Raw-Bucket to Cleansing S3 Raw-Bucket
     # *******************************************************************
