@@ -13,19 +13,19 @@ def main():
 
     spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
 
-	hostname = "nn01.itversity.com"
-	port = "3306"
-	connection = "jdbc:mysql://"
-	dbname = "retail_export"
-	readdriver = "com.mysql.jdbc.Driver"
-	username = "retail_dba"
-	password = "itversity"
+    hostname = "nn01.itversity.com"
+    port = "3306"
+    connection = "jdbc:mysql://"
+    dbname = "retail_export"
+    readdriver = "com.mysql.jdbc.Driver"
+    username = "retail_dba"
+    password = "itversity"
 
-	# Read the last updated dates from a file
-	try:
-		home = os.path.expandvars("$HOME")
-	except e:
-		print("Could not find home path")
+    # Read the last updated dates from a file
+    try:
+    	home = os.path.expandvars("$HOME")
+    except e:
+    	print("Could not find home path")
 
     # STEP 2 - Load S3 Raw-Bucket to Cleansing S3 Raw-Bucket
     # *******************************************************************
