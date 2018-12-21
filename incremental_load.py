@@ -65,9 +65,9 @@ def main():
 
 
 	# Get the new rows (where the column last_update_date is greater (Newer) than the previously logged last_update_date)
-	newp = promotion_df.where(promotion_df.last_update_date > plastdate).select("last_update_date")
-	news97 = sales_1997_df.where(sales_1997_df.last_update_date > s97lastdate).select("last_update_date")
-	news98 = sales_1998_df.where(sales_1998_df.last_update_date > s98lastdate).select("last_update_date")
+	newp = promotion_df.where(promotion_df.last_update_date > plastdate)
+	news97 = sales_1997_df.where(sales_1997_df.last_update_date > s97lastdate)
+	news98 = sales_1998_df.where(sales_1998_df.last_update_date > s98lastdate)
 
 	# Debugging purposes:
 	# Just a print statement to see if the dataframe transferred sucessfully
