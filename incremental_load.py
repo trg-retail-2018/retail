@@ -14,7 +14,7 @@ def main():
 
 
 	# Create the spark session, this replaces the sparkcontext and sqlcontext we had earlier
-    spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
+	spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
 
 	# Set parameters for reading
 	hostname = "nn01.itversity.com"
