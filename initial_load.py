@@ -9,10 +9,7 @@ import datetime
 #Main function
 def main():
 
-    spark = SparkSession.builder \
-         .master("local") \
-         .appName("Initial Load") \
-         .getOrCreate()
+    spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
 
 	# Create promotion dataframe. Mysqlconnector package is required for the driver
 	# Change url to jdbc:mysql://${HOSTNAME}:3306/${DATABASE_NAME}
