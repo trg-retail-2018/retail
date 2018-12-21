@@ -91,9 +91,9 @@ def main():
 	s98max = sales_1998_df.agg({"last_update_date": "max"})
 
 	# Write new last updated date to file
-	pmax.write.option("timestampFormat", "yyyy-MM-dd HH:mm:ss", mode='overwrite').format("csv").save("file:///home/arthurshing/foodmart/case_study/last_updated_dates/promotion")
-	s97max.write.option("timestampFormat", "yyyy-MM-dd HH:mm:ss", mode='overwrite').format("csv").save("file:///home/arthurshing/foodmart/case_study/last_updated_dates/sales97")
-	s98max.write.option("timestampFormat", "yyyy-MM-dd HH:mm:ss", mode='overwrite').format("csv").save("file:///home/arthurshing/foodmart/case_study/last_updated_dates/sales98")
+	pmax.write.mode("overwrite").option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save("file:///home/arthurshing/foodmart/case_study/last_updated_dates/promotion")
+	s97max.write.mode("overwrite").option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save("file:///home/arthurshing/foodmart/case_study/last_updated_dates/sales97")
+	s98max.write.mode("overwrite").option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save("file:///home/arthurshing/foodmart/case_study/last_updated_dates/sales98")
 
 
 
