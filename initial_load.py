@@ -9,9 +9,9 @@ import datetime
 #Main function
 def main():
 
-    spark = SparkSession.builder
-         .master("local")
-         .appName("Initial Load")
+    spark = SparkSession.builder \
+         .master("local") \
+         .appName("Initial Load") \
          .getOrCreate()
 
 	# Create promotion dataframe. Mysqlconnector package is required for the driver

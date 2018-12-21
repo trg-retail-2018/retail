@@ -1,0 +1,37 @@
+sudo apt install spark
+
+sudo apt-get update
+
+sudo apt-get install default-jdk
+
+sudo apt install python2.7
+
+sudo apt install python-pip
+
+export SLUGIFY_USES_TEXT_UNIDECODE=yes
+
+pip install pyspark
+
+sudo apt-get install libmysqlclient-dev
+
+sudo apt-get install libssl-dev
+
+sudo apt-get install libkrb5-dev
+
+sudo apt-get install libsasl2-dev
+
+pip install --upgrade pip
+
+export SLUGIFY_USES_TEXT_UNIDECODE=yes
+
+sudo /home/msr/.local/bin/pip install apache-airflow[async,devel,celery,crypto,druid,gcp_api,jdbc,hdfs,hive,kerberos,ldap,password,postgres,qds,rabbitmq,s3,samba,slack]
+
+airflow initdb
+
+
+rm airflow/airflow.cfg 
+
+cp /mnt/c/Users/MikeS/Documents/airflow.cfg airflow/
+
+airflow webserver -p 9990
+
