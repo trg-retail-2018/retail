@@ -1,5 +1,9 @@
 # Retail Project
 
+## Here is another example for a case study:
+https://github.com/NFLX-WIBD/WIBD-Workshops-2018/tree/master/Data%20Engineering
+
+
 In this project, we will be migrating the existing Retail project to use the New Architecture using Spark,
 Airflow and Kafka.
 
