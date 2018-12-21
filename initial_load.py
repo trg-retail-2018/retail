@@ -9,15 +9,15 @@ import datetime
 #Main function
 def main():
 
-	# Set up spark context 
-        sc = SparkContext("local[2]", "NetworkWordCount")
-	# Set up sql context
-	sqlContext = SQLContext(sc)
+    spark = SparkSession.builder
+         .master("local")
+         .appName("Initial Load")
+         .getOrCreate()
 
 	# Create promotion dataframe. Mysqlconnector package is required for the driver
 	# Change url to jdbc:mysql://${HOSTNAME}:3306/${DATABASE_NAME}
-	# Change user, dbtable and password accordingly 
-	promotion_df = sqlContext.read.format("jdbc").options(
+	# Change user, dbtable and password accordingly
+	promotion_df = spark.read.format("jdbc").options(
 	    url="jdbc:mysql://nn01.itversity.com:3306/retail_export",
 	    driver = "com.mysql.jdbc.Driver",
 	    dbtable = "as_promotion",
@@ -25,7 +25,7 @@ def main():
 	    password="itversity").load()
 
 
-	sales_1997_df = sqlContext.read.format("jdbc").options(
+	sales_1997_df = spark.read.format("jdbc").options(
             url="jdbc:mysql://nn01.itversity.com:3306/retail_export",
             driver = "com.mysql.jdbc.Driver",
             dbtable = "as_sales_1997",
@@ -34,12 +34,12 @@ def main():
 
 
 
-	sales_1998_df = sqlContext.read.format("jdbc").options(
+	sales_1998_df = spark.read.format("jdbc").options(
             url="jdbc:mysql://nn01.itversity.com:3306/retail_export",
             driver = "com.mysql.jdbc.Driver",
             dbtable = "as_sales_1998",
             user="retail_dba",
-            password="itversity").load()	
+            password="itversity").load()
 	# Just a print statement to see if the dataframe transferred sucessfully
 	print promotion_df.show()
 	print sales_1997_df.show()
@@ -52,7 +52,7 @@ def main():
 	pmax = promotion_df.agg({"last_update_date": "max"})
 	s97max = sales_1997_df.agg({"last_update_date": "max"})
 	s98max = sales_1998_df.agg({"last_update_date": "max"})
-	
+
 	pmax.write.option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save("file:///home/arthurshing/foodmart/case_study/last_updated_dates/promotion")
 	s97max.write.option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save("file:///home/arthurshing/foodmart/case_study/last_updated_dates/sales97")
 	s98max.write.option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save("file:///home/arthurshing/foodmart/case_study/last_updated_dates/sales98")
@@ -62,5 +62,3 @@ def main():
 # Runs the script
 if __name__ == "__main__":
 	main()
-
-
