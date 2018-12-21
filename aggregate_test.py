@@ -4,6 +4,7 @@ from pyspark.sql import SparkSession, SQLContext
 from pyspark.sql.types import *
 from pyspark.sql.functions import *
 import datetime
+import os
 #import org.apache.spark.sql.SaveMode
 
 # Run script by using:
@@ -12,10 +13,14 @@ import datetime
 #Main function
 
 def main():
+	home = os.path.expandvars("$HOME")
 
 	# Set up spark context
 
 	spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
+
+	# Replace "/foodmart/case_study..." with whatever your parquet file directory path is
+	parquet_path = "file://" + home + "/foodmart/case_study/cleansed"
 
 	hostname = "nn01.itversity.com"
 	port = "3306"
@@ -24,7 +29,7 @@ def main():
 	username = "retail_dba"
 	password = "itversity"
 
-	parquet_df = spark.read.format("parquet").load("/home/cloudera/Shwetha/case_study/parquet/")
+	parquet_df = spark.read.format("parquet").load(parquet_path)
 	print parquet_df.show()
 
 	timeByDay_df = spark.read.format("jdbc").options(
