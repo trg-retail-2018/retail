@@ -17,20 +17,21 @@ def main():
 	spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
 
 	# Set parameters for reading
-	hostname = "nn01.itversity.com"
+	hostname = "localhost"
 	port = "3306"
 	connection = "jdbc:mysql://"
-	dbname = "retail_export"
+	dbname = "foodmart"
 	readdriver = "com.mysql.jdbc.Driver"
-	username = "retail_dba"
-	password = "itversity"
+	username = "root"
+	password = "mysql"
+
+	destination_path = "file:///mnt/c/Users/Arthur/Documents/retail_ensoftek/buckets/"
 
 	# Read the last updated dates from a file
 	try:
-		home = os.path.expandvars("$HOME")
-		plast = spark.read.csv("file://" + home + "/foodmart/case_study/last_updated_dates/promotion")
-		s97last = spark.read.csv("file://" + home + "/foodmart/case_study/last_updated_dates/sales97")
-		s98last = spark.read.csv("file://" + home + "/foodmart/case_study/last_updated_dates/sales98")
+		plast = spark.read.csv(destination_path + "last_updated_dates/promotion")
+		s97last = spark.read.csv(destination_path + "last_updated_dates/sales97")
+		s98last = spark.read.csv(destination_path + "last_updated_dates/sales98")
 	except e:
 		print("Could not find path to last updated dates files")
 
@@ -45,21 +46,21 @@ def main():
 	promotion_df = spark.read.format("jdbc").options(
 	    url= connection + hostname + ':' + port + '/' + dbname,
 	    driver = readdriver,
-	    dbtable = "as_promotion",
+	    dbtable = "promotion",
 	    user=username,
 	    password=password).load()
 
 	sales_1997_df = spark.read.format("jdbc").options(
             url=connection + hostname + ':' + port + '/' + dbname,
             driver = readdriver,
-            dbtable = "as_sales_1997",
+            dbtable = "sales_fact_1997",
             user=username,
             password=password).load()
 
 	sales_1998_df = spark.read.format("jdbc").options(
             url=connection + hostname + ':' + port + '/' + dbname,
             driver = readdriver,
-            dbtable = "as_sales_1998",
+            dbtable = "sales_fact_1998",
             user=username,
             password=password).load()
 
@@ -81,9 +82,9 @@ def main():
 
 
 	#
-	newp.write.mode("append").format("com.databricks.spark.avro").save("file:///home/arthurshing/foodmart/case_study/raw/promotion")
-	news97.write.mode("append").format("com.databricks.spark.avro").save("file:///home/arthurshing/foodmart/case_study/raw/sales97")
-	news98.write.mode("append").format("com.databricks.spark.avro").save("file:///home/arthurshing/foodmart/case_study/raw/sales98")
+	newp.write.mode("append").format("com.databricks.spark.avro").save(destination_path + "raw/promotion")
+	news97.write.mode("append").format("com.databricks.spark.avro").save(destination_path + "raw/sales97")
+	news98.write.mode("append").format("com.databricks.spark.avro").save(destination_path + "raw/sales98")
 
 	# Get the new last updated date
 	pmax = promotion_df.agg({"last_update_date": "max"})
@@ -91,9 +92,9 @@ def main():
 	s98max = sales_1998_df.agg({"last_update_date": "max"})
 
 	# Write new last updated date to file
-	pmax.write.mode("overwrite").option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save("file:///home/arthurshing/foodmart/case_study/last_updated_dates/promotion")
-	s97max.write.mode("overwrite").option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save("file:///home/arthurshing/foodmart/case_study/last_updated_dates/sales97")
-	s98max.write.mode("overwrite").option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save("file:///home/arthurshing/foodmart/case_study/last_updated_dates/sales98")
+	pmax.write.mode("overwrite").option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save(destination_path + "last_updated_dates/promotion")
+	s97max.write.mode("overwrite").option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save(destination_path + "last_updated_dates/sales97")
+	s98max.write.mode("overwrite").option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save(destination_path + "last_updated_dates/sales98")
 
 
 
