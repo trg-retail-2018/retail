@@ -1,0 +1,9 @@
+
+
+First create database and create table with the correct schema
+
+create or replace file format mycsv
+    type = 'CSV'
+    field_delimiter= ',';
+
+COPY INTO "FOODMART"."PUBLIC"."AGGREGATESALES" FROM s3://ashicurated/data credentials=(aws_key_id='${MYKEY}' aws_secret_key='${MYSECRETKEY}') file_format= (format_name = mycsv) force=true;
