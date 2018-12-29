@@ -1,5 +1,15 @@
 # Retail Project
 
+## JARS:
+Scroll down to the second answer
+https://stackoverflow.com/questions/46434255/how-to-query-datasets-in-avro-format
+
+2) wget http://central.maven.org/maven2/com/databricks/spark-avro_2.11/4.0.0/spark-avro_2.11-4.0.0.jar .
+
+3)  spark-shell --jars <pathwhere you downloaded jar file>/spark-avro_2.11-4.0.0.jar
+
+4)spark.read.format("com.databricks.spark.avro").load("s3://MYAVROLOCATION.avro")
+
 ## Here is another example for a case study:
 https://github.com/NFLX-WIBD/WIBD-Workshops-2018/tree/master/Data%20Engineering
 
