@@ -2,7 +2,7 @@
 # @Date:   2019-01-02T14:02:10-08:00
 # @Filename: pipeline.py
 # @Last modified by:   Arthur Shing
-# @Last modified time: 2019-01-02T14:43:21-08:00
+# @Last modified time: 2019-01-02T14:49:22-08:00
 
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
@@ -28,7 +28,7 @@ sys.path.append(os.path.join(os.environ['SPARK_HOME'], 'bin'))
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2015, 6, 1),
+    'start_date': datetime(2019, 1, 2),
     'email': ['shinga@oregonstate.edu'],
     'email_on_failure': False,
     'email_on_retry': False,
@@ -38,6 +38,7 @@ default_args = {
 
 dag = DAG(
     dag_id='foodmart',
+    catchup=False,
     default_args=default_args,
     dagrun_timeout=timedelta(minutes=15)
 )

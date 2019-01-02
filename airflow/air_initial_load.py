@@ -2,6 +2,7 @@ from pyspark import SparkContext
 from pyspark.streaming import StreamingContext
 from pyspark.sql import SparkSession, SQLContext
 import datetime
+import shutil
 
 # Run script by using:
 # spark-submit --packages mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0 initial_load.py
@@ -23,7 +24,8 @@ def main():
 
 	destination_path = "file:///mnt/c/Users/Arthur/Documents/retail_ensoftek/buckets/"
 
-
+	shutil.rmtree(destination_path)
+	
 	# Create promotion dataframe. Mysqlconnector package is required for the driver
 	# Change url to jdbc:mysql://${HOSTNAME}:3306/${DATABASE_NAME}
 	# Change user, dbtable and password accordingly
