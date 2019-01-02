@@ -25,7 +25,7 @@ def main():
 	foldpath = "/mnt/c/Users/Arthur/Documents/retail_ensoftek/buckets/"
 	destination_path = "file://" + foldpath
 
-	shutil.rmtree(destination_path)
+	shutil.rmtree(foldpath)
 
 	# Create promotion dataframe. Mysqlconnector package is required for the driver
 	# Change url to jdbc:mysql://${HOSTNAME}:3306/${DATABASE_NAME}

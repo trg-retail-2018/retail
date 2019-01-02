@@ -2,7 +2,7 @@
 # @Date:   2019-01-02T14:02:10-08:00
 # @Filename: pipeline.py
 # @Last modified by:   Arthur Shing
-# @Last modified time: 2019-01-02T14:49:22-08:00
+# @Last modified time: 2019-01-02T15:09:49-08:00
 
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
@@ -32,7 +32,7 @@ default_args = {
     'email': ['shinga@oregonstate.edu'],
     'email_on_failure': False,
     'email_on_retry': False,
-    'retries': 1,
+    'retries': 0,
     'retry_delay': timedelta(minutes=5),
 }
 
