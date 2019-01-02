@@ -2,8 +2,9 @@
 # @Date:   2019-01-02T14:02:10-08:00
 # @Filename: pipeline.py
 # @Last modified by:   Arthur Shing
-# @Last modified time: 2019-01-02T14:29:16-08:00
+# @Last modified time: 2019-01-02T14:43:21-08:00
 
+from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy_operator import DummyOperator
 from datetime import datetime, timedelta
@@ -12,14 +13,32 @@ from datetime import datetime, timedelta
 import os
 import sys
 
+"""
+COPY THIS FILE INTO YOUR DAGS FOLDER (MKDIR IF NOT EXIST), DEFAULT IS ~/airflow/dags (CHECK ~/airflow/airflow.cfg)
+"""
+
+
 # Directory that holds all the scripts
 script_home = "/mnt/c/Users/Arthur/Documents/retail_ensoftek/airflow/"
 
+# Make sure spark-submit exists, replace '/usr/lib/spark/' with wherever your spark home is
 os.environ['SPARK_HOME'] = '/usr/lib/spark/'
 sys.path.append(os.path.join(os.environ['SPARK_HOME'], 'bin'))
 
+default_args = {
+    'owner': 'airflow',
+    'depends_on_past': False,
+    'start_date': datetime(2015, 6, 1),
+    'email': ['shinga@oregonstate.edu'],
+    'email_on_failure': False,
+    'email_on_retry': False,
+    'retries': 1,
+    'retry_delay': timedelta(minutes=5),
+}
+
 dag = DAG(
     dag_id='foodmart',
+    default_args=default_args,
     dagrun_timeout=timedelta(minutes=15)
 )
 
