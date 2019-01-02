@@ -22,10 +22,11 @@ def main():
 	username = "root"
 	password = "mysql"
 
-	destination_path = "file:///mnt/c/Users/Arthur/Documents/retail_ensoftek/buckets/"
+	foldpath = "/mnt/c/Users/Arthur/Documents/retail_ensoftek/buckets/"
+	destination_path = "file://" + foldpath
 
 	shutil.rmtree(destination_path)
-	
+
 	# Create promotion dataframe. Mysqlconnector package is required for the driver
 	# Change url to jdbc:mysql://${HOSTNAME}:3306/${DATABASE_NAME}
 	# Change user, dbtable and password accordingly
