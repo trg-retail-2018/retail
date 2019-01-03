@@ -83,8 +83,8 @@ def main():
 
 	#
 	newp.write.mode("append").format("com.databricks.spark.avro").save(destination_path + "raw/promotion")
-	news97.write.mode("append").format("com.databricks.spark.avro").save(destination_path + "raw/sales97")
-	news98.write.mode("append").format("com.databricks.spark.avro").save(destination_path + "raw/sales98")
+	news97.write.mode("append").format("com.databricks.spark.avro").save(destination_path + "raw/sales_fact_1997")
+	news98.write.mode("append").format("com.databricks.spark.avro").save(destination_path + "raw/sales_fact_1998")
 
 	# Get the new last updated date
 	pmax = promotion_df.agg({"last_update_date": "max"})

@@ -2,7 +2,7 @@
 # @Date:   2019-01-02T14:02:10-08:00
 # @Filename: pipeline.py
 # @Last modified by:   Arthur Shing
-# @Last modified time: 2019-01-02T15:09:49-08:00
+# @Last modified time: 2019-01-03T14:10:26-08:00
 
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
@@ -40,7 +40,8 @@ dag = DAG(
     dag_id='foodmart',
     catchup=False,
     default_args=default_args,
-    dagrun_timeout=timedelta(minutes=15)
+    dagrun_timeout=timedelta(minutes=15),
+    schedule_interval='@hourly',
 )
 
 start = DummyOperator(
@@ -54,13 +55,13 @@ initial_load = BashOperator(
     params={'pkgs': 'mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0', 'file': script_home + 'air_initial_load.py'},
     dag=dag
 )
-
-incremental_load = BashOperator(
-    task_id='incremental_load',
-    bash_command='spark-submit --packages {{ params.pkgs }} {{ params.file }}',
-    params={'pkgs': 'mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0', 'file': script_home + 'air_incremental_load.py'},
-    dag=dag
-)
+#
+# incremental_load = BashOperator(
+#     task_id='incremental_load',
+#     bash_command='spark-submit --packages {{ params.pkgs }} {{ params.file }}',
+#     params={'pkgs': 'mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0', 'file': script_home + 'air_incremental_load.py'},
+#     dag=dag
+# )
 
 promotion_filter = BashOperator(
     task_id='promotion_filter',

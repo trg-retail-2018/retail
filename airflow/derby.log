@@ -1,0 +1,13 @@
+----------------------------------------------------------------
+Thu Jan 03 19:14:56 UTC 2019:
+Booting Derby version The Apache Software Foundation - Apache Derby - 10.12.1.1 - (1704137): instance a816c00e-0168-1523-d255-000006745248 
+on database directory /mnt/c/Users/Arthur/Documents/retail_ensoftek/airflow/metastore_db with class loader org.apache.spark.sql.hive.client.IsolatedClientLoader$$anon$1@67ea3fae 
+Loaded from file:/usr/lib/spark/jars/derby-10.12.1.1.jar
+java.vendor=Oracle Corporation
+java.runtime.version=1.8.0_191-8u191-b12-0ubuntu0.16.04.1-b12
+user.dir=/mnt/c/Users/Arthur/Documents/retail_ensoftek/airflow
+os.name=Linux
+os.arch=amd64
+os.version=4.4.0-17134-Microsoft
+derby.system.home=null
+Database Class Loader started - derby.database.classpath=''

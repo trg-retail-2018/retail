@@ -3,15 +3,28 @@ from pyspark.streaming import StreamingContext
 from pyspark.sql import SparkSession, SQLContext
 import datetime
 import shutil
+import boto3
+
 
 # Run script by using:
 # spark-submit --packages mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0 initial_load.py
+
+
+def loadCredentials(filepath):
+	f = open(filepath, "r")
+	f.readline()
+	ak = f.readline()[18:].strip()
+	sk = f.readline()[22:].strip()
+	return (ak, sk)
 
 #Main function
 def main():
 
 	spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
 
+	ACCESS_KEY, SECRET_KEY = loadCredentials("/home/shinga/.aws/credentials")
+	spark._jsc.hadoopConfiguration().set("fs.s3n.awsAccessKeyId", ACCESS_KEY)
+	spark._jsc.hadoopConfiguration().set("fs.s3n.awsSecretAccessKey", SECRET_KEY)
 
 	# Set parameters for reading
 	hostname = "localhost"
@@ -23,50 +36,33 @@ def main():
 	password = "mysql"
 
 	foldpath = "/mnt/c/Users/Arthur/Documents/retail_ensoftek/buckets/"
-	destination_path = "file://" + foldpath
+	try:
+		print("Deleting folder " + foldpath)
+		shutil.rmtree(foldpath)
+	except:
+		print("No folder to delete")
+	# destination_path = "s3a://ashiraw"
+	destination_path = "/mnt/c/Users/Arthur/Documents/retail_ensoftek/buckets/"
 
-	shutil.rmtree(foldpath)
 
 	# Create promotion dataframe. Mysqlconnector package is required for the driver
 	# Change url to jdbc:mysql://${HOSTNAME}:3306/${DATABASE_NAME}
 	# Change user, dbtable and password accordingly
-	promotion_df = spark.read.format("jdbc").options(
-	    url= connection + hostname + ':' + port + '/' + dbname,
-	    driver = readdriver,
-	    dbtable = "promotion",
-	    user=username,
-	    password=password).load()
 
-	sales_1997_df = spark.read.format("jdbc").options(
-            url=connection + hostname + ':' + port + '/' + dbname,
-            driver = readdriver,
-            dbtable = "sales_fact_1997",
-            user=username,
-            password=password).load()
+	tablenames = ["promotion", "sales_fact_1997", "sales_fact_1998", "time_by_day", "store"]
 
-	sales_1998_df = spark.read.format("jdbc").options(
-            url=connection + hostname + ':' + port + '/' + dbname,
-            driver = readdriver,
-            dbtable = "sales_fact_1998",
-            user=username,
-            password=password).load()
+	for table in tablenames:
+		df = spark.read.format("jdbc").options(
+		    url= connection + hostname + ':' + port + '/' + dbname,
+		    driver = readdriver,
+		    dbtable = table,
+		    user=username,
+		    password=password).load()
 
-	# Just a print statement to see if the dataframe transferred sucessfully
-	print promotion_df.show()
-	print sales_1997_df.show()
-	print sales_1998_df.show()
-
-	promotion_df.write.format("com.databricks.spark.avro").save(destination_path + "raw/promotion")
-	sales_1997_df.write.format("com.databricks.spark.avro").save(destination_path + "raw/sales97")
-	sales_1998_df.write.format("com.databricks.spark.avro").save(destination_path + "raw/sales98")
-
-	pmax = promotion_df.agg({"last_update_date": "max"})
-	s97max = sales_1997_df.agg({"last_update_date": "max"})
-	s98max = sales_1998_df.agg({"last_update_date": "max"})
-
-	pmax.write.option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save(destination_path + "last_updated_dates/promotion")
-	s97max.write.option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save(destination_path + "last_updated_dates/sales97")
-	s98max.write.option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save(destination_path + "last_updated_dates/sales98")
+		df.coalesce(1).write.format("com.databricks.spark.avro").save(destination_path + "raw/" + table)
+		if table in ["promotion", "sales_fact_1997", "sales_fact_1998"]:
+			dfmax = df.agg({"last_update_date": "max"})
+			dfmax.coalesce(1).write.option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save(destination_path + "last_updated_dates/" + table)
 
 
 

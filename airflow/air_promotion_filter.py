@@ -34,10 +34,10 @@ def main():
     promotion_RF_df=spark.read.format("com.databricks.spark.avro").load(destination_path + "raw/promotion/")
     pro_df=promotion_RF_df.where(col("promotion_id") > 0).drop(last_update_column_name)
 
-    sales_1997_RF_df=spark.read.format("com.databricks.spark.avro").load(destination_path + "raw/sales97/")
+    sales_1997_RF_df=spark.read.format("com.databricks.spark.avro").load(destination_path + "raw/sales_fact_1997/")
     sales97_df=sales_1997_RF_df.where(col("promotion_id") > 0).drop(last_update_column_name)
 
-    sales_1998_RF_df=spark.read.format("com.databricks.spark.avro").load(destination_path + "raw/sales98/")
+    sales_1998_RF_df=spark.read.format("com.databricks.spark.avro").load(destination_path + "raw/sales_fact_1998/")
     sales98_df=sales_1998_RF_df.where(col("promotion_id") > 0).drop(last_update_column_name)
 
     # sales_1998_dec_RF_df=spark.read.format("com.databricks.spark.avro").load(
