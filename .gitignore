@@ -1,2 +1,5 @@
 buckets/
 errordoc.txt
+airflow/metastore_db/
+airflow/spark-warehouse/
+spark-warehouse/
