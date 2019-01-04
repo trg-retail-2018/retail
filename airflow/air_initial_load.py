@@ -53,6 +53,8 @@ def main():
 	# This version writes to s3a://[bucket]/foodmart/raw/[table-name]/
 	# Since we named some folders as "sales97" before and not "sales_fact_1997", make sure you change them in the other scripts
 	# We are loading time_by_day and store here as well, so we don't have to load them later in aggregate. Haven't fixed that yet.
+
+	# This puts the table names into a list
 	tablenames = ["promotion", "sales_fact_1997", "sales_fact_1998", "time_by_day", "store"]
 
 	for table in tablenames:
