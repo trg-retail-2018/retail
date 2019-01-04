@@ -2,7 +2,7 @@
 # @Date:   2019-01-02T14:02:10-08:00
 # @Filename: pipeline.py
 # @Last modified by:   Arthur Shing
-# @Last modified time: 2019-01-04T12:25:16-08:00
+# @Last modified time: 2019-01-04T15:09:41-08:00
 
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
@@ -28,20 +28,20 @@ sys.path.append(os.path.join(os.environ['SPARK_HOME'], 'bin'))
 default_args = {
     'owner': 'airflow',
     'depends_on_past': False,
-    'start_date': datetime(2019, 1, 2),
+    'start_date': datetime(2019, 1, 4),
     'email': ['shinga@oregonstate.edu'],
     'email_on_failure': False,
     'email_on_retry': False,
     'retries': 0,
-    'retry_delay': timedelta(minutes=5),
+    'retry_delay': timedelta(minutes=20),
 }
 
 dag = DAG(
-    dag_id='foodmart',
+    dag_id='foodmart_full',
     catchup=False,
     default_args=default_args,
     dagrun_timeout=timedelta(minutes=15),
-    schedule_interval='@hourly',
+    schedule_interval='@weekly',
 )
 
 start = DummyOperator(
@@ -77,9 +77,24 @@ aggregate = BashOperator(
     dag=dag
 )
 
+
+load_snowflake = BashOperator(
+    task_id='load_snowflake',
+    bash_command='spark-submit --jars {{ params.jars }} --packages {{ params.pkgs }} {{ params.file }}',
+    params={'jars': '/usr/local/bin/aws-java-sdk-1.7.4.jar,/usr/local/bin/hadoop-aws-2.7.3.jar', 'pkgs': 'mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0', 'file': script_home + 'air_snowflake_load.py'},
+    dag=dag
+)
+
+query_snowflake = BashOperator(
+    task_id='query_snowflake',
+    bash_command='spark-submit --jars {{ params.jars }} --packages {{ params.pkgs }} {{ params.file }}',
+    params={'jars': '/usr/local/bin/aws-java-sdk-1.7.4.jar,/usr/local/bin/hadoop-aws-2.7.3.jar', 'pkgs': 'mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0', 'file': script_home + 'air_snowflake_query.py'},
+    dag=dag
+)
+
 end = DummyOperator(
         task_id='end',
         dag=dag
 )
 
-start >> initial_load >> promotion_filter >> aggregate >> end
+start >> initial_load >> promotion_filter >> aggregate >> load_snowflake >> query_snowflake >> end
