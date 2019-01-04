@@ -38,7 +38,7 @@ def main():
 
 	csv_df = weekday_DF.join(weekend_DF,["promotion_id", "region_id", "the_year", "the_month"])
 
-	csv_df.write.mode("overwrite").format("csv").save(destination_path + "aggregate")
+	csv_df.coalesce(6).write.mode("overwrite").format("csv").save(destination_path + "aggregate")
 
 
 # Runs the script
