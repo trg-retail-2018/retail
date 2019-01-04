@@ -17,14 +17,16 @@ def main():
 
 	spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
 
-	destination_path = "s3a://ashiraw/foodmart/"
+	source_path_cleansed = "s3a://ashicleansed/foodmart/"
+	source_path_raw = "s3a://ashiraw/foodmart/"
+	destination_path = "s3a://ashicurated/foodmart/"
 
 	# Load files
-	parquet_df = spark.read.format("parquet").load(destination_path + "cleansed")
+	parquet_df = spark.read.format("parquet").load(source_path_cleansed)
 
-	timeByDay_df = spark.read.format("com.databricks.spark.avro").load(destination_path + "raw/time_by_day/")
+	timeByDay_df = spark.read.format("com.databricks.spark.avro").load(source_path_raw + "raw/time_by_day/")
 
-	store_df = spark.read.format("com.databricks.spark.avro").load(destination_path + "raw/store/")
+	store_df = spark.read.format("com.databricks.spark.avro").load(source_path_raw + "raw/store/")
 
 	prq_time_store_df = parquet_df.join(timeByDay_df, "time_id").join(store_df, "store_id")
 
