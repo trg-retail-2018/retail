@@ -10,12 +10,13 @@ from os.path import expanduser
 # Run script by using:
 # spark-submit --jars /usr/local/bin/aws-java-sdk-1.7.4.jar,/usr/local/bin/hadoop-aws-2.7.3.jar --packages mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0 air_initial_load.py
 
-def loadCredentials(filepath):
-	f = open(filepath, "r")
-	f.readline()
-	ak = f.readline()[18:].strip()
-	sk = f.readline()[22:].strip()
-	return (ak, sk)
+# I don't think this does anything
+# def loadCredentials(filepath):
+# 	f = open(filepath, "r")
+# 	f.readline()
+# 	ak = f.readline()[18:].strip()
+# 	sk = f.readline()[22:].strip()
+# 	return (ak, sk)
 
 #Main function
 def main():
@@ -23,11 +24,11 @@ def main():
 	spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
 
 	# Not sure if we need this, but this sets s3 credentials for spark, I think.
-
-	home = expanduser("~") # Gets home directory (/home/shinga/)
-	ACCESS_KEY, SECRET_KEY = loadCredentials(home + "/.aws/credentials")
-	spark._jsc.hadoopConfiguration().set("fs.s3n.awsAccessKeyId", ACCESS_KEY)
-	spark._jsc.hadoopConfiguration().set("fs.s3n.awsSecretAccessKey", SECRET_KEY)
+	# I don't think this does anything.
+	# home = expanduser("~") # Gets home directory (/home/shinga/)
+	# ACCESS_KEY, SECRET_KEY = loadCredentials(home + "/.aws/credentials")
+	# spark._jsc.hadoopConfiguration().set("fs.s3n.awsAccessKeyId", ACCESS_KEY)
+	# spark._jsc.hadoopConfiguration().set("fs.s3n.awsSecretAccessKey", SECRET_KEY)
 
 	# Set parameters for reading
 	hostname = "localhost"
