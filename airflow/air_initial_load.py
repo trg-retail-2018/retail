@@ -66,7 +66,7 @@ def main():
 
 		if table in ["promotion", "sales_fact_1997", "sales_fact_1998"]:
 			dfmax = df.agg({"last_update_date": "max"})
-			dfmax.coalesce(1).write.option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save(destination_path + "last_updated_dates/" + table)
+			dfmax.coalesce(1).write.mode("overwrite").option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save(destination_path + "last_updated_dates/" + table)
 
 
 
