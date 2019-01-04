@@ -41,8 +41,8 @@ def main():
 		shutil.rmtree(foldpath)
 	except:
 		print("No folder to delete")
-	# destination_path = "s3a://ashiraw"
-	destination_path = "/mnt/c/Users/Arthur/Documents/retail_ensoftek/buckets/"
+	destination_path = "s3a://ashiraw/foodmart/"
+	# destination_path = "/mnt/c/Users/Arthur/Documents/retail_ensoftek/buckets/"
 
 
 	# Create promotion dataframe. Mysqlconnector package is required for the driver
