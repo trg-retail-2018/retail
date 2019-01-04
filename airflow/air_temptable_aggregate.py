@@ -33,10 +33,10 @@ def main():
 	#register as temp table so that you will be able to query the table
 	prq_time_store_df.registerTempTable("myTable")
 	weekday_DF = spark.sql("SELECT region_id,promotion_id,the_month,the_year,sum(store_sales) as weekday_sales FROM myTable WHERE the_day NOT IN ('Saturday', 'Sunday') GROUP BY region_id,promotion_id,the_month,the_year")
-	weekend_DF = spark.sql("SELECT region_id,promotion_id,the_month,the_year,sum(store_sales) as weekend_sales FROM myTable WHERE the_day IN ('Saturday', 'Sunday') GROUP BY region_id,promotion_id,the_month,the_year ").drop("region_id")
+	weekend_DF = spark.sql("SELECT region_id,promotion_id,the_month,the_year,sum(store_sales) as weekend_sales FROM myTable WHERE the_day IN ('Saturday', 'Sunday') GROUP BY region_id,promotion_id,the_month,the_year ")
 
 
-	csv_df = weekday_DF.join(weekend_DF,"promotion_id")
+	csv_df = weekday_DF.join(weekend_DF,["promotion_id", "region_id", "the_year", "the_month"])
 
 	csv_df.write.mode("overwrite").format("csv").save(destination_path + "aggregate")
 
