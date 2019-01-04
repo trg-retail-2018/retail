@@ -4,6 +4,7 @@ from pyspark.sql import SparkSession, SQLContext
 import datetime
 import shutil
 import boto3
+from os.path import expanduser
 
 
 # Run script by using:
@@ -22,7 +23,10 @@ def main():
 
 	spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
 
-	ACCESS_KEY, SECRET_KEY = loadCredentials("/home/shinga/.aws/credentials")
+	# Not sure if we need this, but this sets s3 credentials for spark, I think.
+
+	home = expanduser("~") # Gets home directory (/home/shinga/)
+	ACCESS_KEY, SECRET_KEY = loadCredentials(home + "/.aws/credentials")
 	spark._jsc.hadoopConfiguration().set("fs.s3n.awsAccessKeyId", ACCESS_KEY)
 	spark._jsc.hadoopConfiguration().set("fs.s3n.awsSecretAccessKey", SECRET_KEY)
 
@@ -35,13 +39,9 @@ def main():
 	username = "root"
 	password = "mysql"
 
-	foldpath = "/mnt/c/Users/Arthur/Documents/retail_ensoftek/buckets/"
-	try:
-		print("Deleting folder " + foldpath)
-		shutil.rmtree(foldpath)
-	except:
-		print("No folder to delete")
+	# Set the target path - "s3a://[bucketname]/[folder]/"
 	destination_path = "s3a://ashiraw/foodmart/"
+
 	# destination_path = "/mnt/c/Users/Arthur/Documents/retail_ensoftek/buckets/"
 
 
@@ -49,6 +49,10 @@ def main():
 	# Change url to jdbc:mysql://${HOSTNAME}:3306/${DATABASE_NAME}
 	# Change user, dbtable and password accordingly
 
+	# Instead of loading them uglily, here is a pretty version in a for-loop
+	# This version writes to s3a://[bucket]/foodmart/raw/[table-name]/
+	# Since we named some folders as "sales97" before and not "sales_fact_1997", make sure you change them in the other scripts
+	# We are loading time_by_day and store here as well, so we don't have to load them later in aggregate. Haven't fixed that yet.
 	tablenames = ["promotion", "sales_fact_1997", "sales_fact_1998", "time_by_day", "store"]
 
 	for table in tablenames:
@@ -59,7 +63,8 @@ def main():
 		    user=username,
 		    password=password).load()
 
-		df.coalesce(1).write.format("com.databricks.spark.avro").save(destination_path + "raw/" + table)
+		df.coalesce(1).write.mode("overwrite").format("com.databricks.spark.avro").save(destination_path + "raw/" + table)
+
 		if table in ["promotion", "sales_fact_1997", "sales_fact_1998"]:
 			dfmax = df.agg({"last_update_date": "max"})
 			dfmax.coalesce(1).write.option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save(destination_path + "last_updated_dates/" + table)
