@@ -8,8 +8,7 @@ from os.path import expanduser
 
 
 # Run script by using:
-# spark-submit --packages mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0 initial_load.py
-
+# spark-submit --jars /usr/local/bin/aws-java-sdk-1.7.4.jar,/usr/local/bin/hadoop-aws-2.7.3.jar --packages mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0 air_initial_load.py
 
 def loadCredentials(filepath):
 	f = open(filepath, "r")
