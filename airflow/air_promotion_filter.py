@@ -12,44 +12,27 @@ import os
 
 def main():
 
-
     spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
     last_update_column_name = 'last_update_date'
 
-
-    hostname = "localhost"
-    port = "3306"
-    connection = "jdbc:mysql://"
-    dbname = "foodmart"
-    readdriver = "com.mysql.jdbc.Driver"
-    username = "root"
-    password = "mysql"
-
-    destination_path = "file:///mnt/c/Users/Arthur/Documents/retail_ensoftek/buckets/"
+    destination_path = "s3a://ashiraw/foodmart/"
 
     # STEP 2 - Load S3 Raw-Bucket to Cleansing S3 Raw-Bucket
     # *******************************************************************
     # *******************************************************************
     # *******************************************************************
-    promotion_RF_df=spark.read.format("com.databricks.spark.avro").load(destination_path + "raw/promotion/")
-    pro_df=promotion_RF_df.where(col("promotion_id") > 0).drop(last_update_column_name)
+    promotion_df=spark.read.format("com.databricks.spark.avro").load(destination_path + "raw/promotion/").where(col("promotion_id") > 0).drop(last_update_column_name)
 
-    sales_1997_RF_df=spark.read.format("com.databricks.spark.avro").load(destination_path + "raw/sales_fact_1997/")
-    sales97_df=sales_1997_RF_df.where(col("promotion_id") > 0).drop(last_update_column_name)
+    sales_1997_df=spark.read.format("com.databricks.spark.avro").load(destination_path + "raw/sales_fact_1997/").where(col("promotion_id") > 0).drop(last_update_column_name)
 
-    sales_1998_RF_df=spark.read.format("com.databricks.spark.avro").load(destination_path + "raw/sales_fact_1998/")
-    sales98_df=sales_1998_RF_df.where(col("promotion_id") > 0).drop(last_update_column_name)
+    sales_1998_df=spark.read.format("com.databricks.spark.avro").load(destination_path + "raw/sales_fact_1998/").where(col("promotion_id") > 0).drop(last_update_column_name)
 
-    # sales_1998_dec_RF_df=spark.read.format("com.databricks.spark.avro").load(
-    #     "file://" + home + "/foodmart/case_study/raw/sales98dec/")
-    # sales98_dec_df=sales_1998_dec_RF_df.where (col("promotion_id") > 0).drop('last_update_column')
+    sales_DF=sales_1997_df.unionAll(sales_1998_df)
 
-    sales_DF=sales97_df.unionAll(sales98_df)
-
-    final_DF=pro_df.join(sales_DF, pro_df.promotion_id == sales_DF.promotion_id).drop(sales_DF.promotion_id)
+    final_DF=promotion_df.join(sales_DF, "promotion_id").drop(sales_DF.promotion_id)
 
     # MAKE SURE YOU CREATE THE DIRECTORY FIRST, BECAUSE THIS IS APPENDING
-    final_DF.write.mode("append").format("parquet").save(destination_path + "cleansed/")
+    final_DF.coalesce(2).write.mode("append").format("parquet").save(destination_path + "cleansed/")
 
     # *******************************************************************
     # *******************************************************************

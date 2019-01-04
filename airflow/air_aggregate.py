@@ -17,55 +17,41 @@ def main():
 
 	spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
 
-	# Set parameters for reading
-	hostname = "localhost"
-	port = "3306"
-	connection = "jdbc:mysql://"
-	dbname = "foodmart"
-	readdriver = "com.mysql.jdbc.Driver"
-	username = "root"
-	password = "mysql"
+	destination_path = "s3a://ashiraw/foodmart/"
 
-	destination_path = "file:///mnt/c/Users/Arthur/Documents/retail_ensoftek/buckets/"
-
+	# Load files
 	parquet_df = spark.read.format("parquet").load(destination_path + "cleansed")
-	print parquet_df.show()
 
-	timeByDay_df = spark.read.format("jdbc").options(
-	    url= connection + hostname + ':' + port + '/' + dbname,
-	    driver = readdriver,
-	    dbtable = "time_by_day",
-	    user=username,
-	    password=password).load()
+	timeByDay_df = spark.read.format("com.databricks.spark.avro").load(destination_path + "raw/time_by_day/")
 
-	store_df = spark.read.format("jdbc").options(
-	    url= connection + hostname + ':' + port + '/' + dbname,
-	    driver = readdriver,
-	    dbtable = "store",
-	    user=username,
-	    password=password).load()
+	store_df = spark.read.format("com.databricks.spark.avro").load(destination_path + "raw/store/")
 
-	# print timeByDay_df.show()
-	# print store_df.show()
+	prq_time_store_df = parquet_df.join(timeByDay_df, "time_id").join(store_df, "store_id")
 
-	parquet_time_df = parquet_df.join(timeByDay_df, parquet_df.time_id == timeByDay_df.time_id)
-	prq_time_store_df = parquet_time_df.join(store_df, parquet_time_df.store_id == store_df.store_id)
+	# Cut out all the junk data
+	prq_time_store_df = prq_time_store_df.select("region_id", "promotion_id", "cost", "store_sales", "the_day", "the_month", "the_year", store_df.region_id)
 
-	# print parquet_time_df.show()
-	# print prq_time_store_df.show()
+	# Here is what Michael did:
+	# Filter the df for saturday, and union it with a df filtered for sunday
+	# Filter the df for everything that isn't saturday or sunday
+	weekend_DF = prq_time_store_df.filter("the_day == 'Saturday'").union(prq_time_store_df.filter("the_day == 'Sunday'"))
+	weekday_DF = prq_time_store_df.filter("the_day != 'Saturday'").filter("the_day != 'Sunday'")
 
-	#register as temp table so that you will be able to query the table
-	prq_time_store_df.registerTempTable("myTable")
-	weekday_DF = spark.sql("SELECT region_id,promotion_id,the_month,the_year,sum(store_sales) as weekday_sales FROM myTable WHERE the_day NOT IN ('Saturday', 'Sunday') GROUP BY region_id,promotion_id,the_month,the_year")
-	weekend_DF = spark.sql("SELECT region_id,promotion_id,the_month,the_year,sum(store_sales) as weekend_sales FROM myTable WHERE the_day IN ('Saturday', 'Sunday') GROUP BY region_id,promotion_id,the_month,the_year ")
-	# print weekday_DF.show()
-	# print weekend_DF.show()
+	# Cast the sales column into a Double type (right now it is a String and cannot be aggregated)
+	weekend_DF = weekend_DF.withColumn("sales", weekend_DF["store_sales"].cast(DoubleType())).drop("store_sales")
+	weekday_DF = weekday_DF.withColumn("sales", weekday_DF["store_sales"].cast(DoubleType())).drop("store_sales")
 
-	csv_df = weekday_DF.join(weekend_DF, weekday_DF.promotion_id == weekend_DF.promotion_id).select(weekday_DF.promotion_id,weekday_DF.region_id,weekday_DF.the_month,weekday_DF.the_year,weekday_DF.weekday_sales,weekend_DF.weekend_sales)
-	#weekday_DF.repartition(1).write.format("csv").save("file:///home/cloudera/Shwetha/case_study/csvweekday")
-	#weekend_DF.repartition(1).write.format("csv").save("file:///home/cloudera/Shwetha/case_study/csvweekend")
-	csv_df.repartition(2).write.format("csv").save(destination_path + "aggregate")
-	print csv_df.show()
+	# Aggregate
+	weekend_DF = weekend_DF.groupby("region_id", "promotion_id", "the_year", "the_month", "cost").agg(sum("sales").alias("weekend_sales"))
+	weekday_DF = weekday_DF.groupby("region_id", "promotion_id", "the_year", "the_month", "cost").agg(sum("sales").alias("weekday_sales"))
+
+	# Michael did something convoluted here, we're just going to equijoin
+	# Join on multiple columns
+	csv_df = weekday_DF.join(weekend_DF,["promotion_id", "region_id", "the_year", "the_month", "cost"])
+
+
+	csv_df.coalesce(6).write.mode("overwrite").format("csv").save(destination_path + "aggregate")
+
 
 
 
