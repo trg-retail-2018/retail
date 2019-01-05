@@ -10,6 +10,9 @@ https://stackoverflow.com/questions/46434255/how-to-query-datasets-in-avro-forma
 
 4)spark.read.format("com.databricks.spark.avro").load("s3://MYAVROLOCATION.avro")
 
+## Snowflake query MVP
+https://stackoverflow.com/questions/612231/how-can-i-select-rows-with-maxcolumn-value-distinct-by-another-column-in-sql
+
 ## Here is another example for a case study:
 https://github.com/NFLX-WIBD/WIBD-Workshops-2018/tree/master/Data%20Engineering
 
