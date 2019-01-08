@@ -12,12 +12,14 @@ logging.basicConfig(
 #Main function
 def main():
 
+    # Path to the source bucket
     WHERE_DATA_IS = "s3://ashicurated/foodmart/aggregate/"
 
     ACCOUNT = 'md17171'
     USER = 'BHTraining1219'
     PASSWORD = 'Groupc1219'
 
+    # Get keys from environmental variables
     AWS_ACCESS_KEY_ID = os.getenv('AWS_ACCESS_KEY_ID')
     AWS_SECRET_ACCESS_KEY = os.getenv('AWS_SECRET_ACCESS_KEY')
 
@@ -33,6 +35,7 @@ def main():
     con.cursor().execute("USE WAREHOUSE COMPUTE_WH")
     con.cursor().execute("USE FOODMART.PUBLIC")
 
+    # Not necessary but it was in the tutorial
     con.cursor().execute("CREATE OR REPLACE FILE FORMAT mycsv TYPE='CSV' FIELD_DELIMITER = ','")
 
     # Create the table

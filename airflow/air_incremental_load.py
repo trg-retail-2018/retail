@@ -39,9 +39,7 @@ def main():
 		# Convert last updated dates from string to datetime
 		last_date = datetime.datetime.strptime(str(last_date_table.first()._c0), '%Y-%m-%d %H:%M:%S')
 
-		# Create promotion dataframe. Mysqlconnector package is required for the driver
-		# Change url to jdbc:mysql://${HOSTNAME}:3306/${DATABASE_NAME}
-		# Change user, dbtable and password accordingly
+		# Create dataframe. Mysqlconnector package is required for the driver
 		df = spark.read.format("jdbc").options(
 		    url= connection + hostname + ':' + port + '/' + dbname,
 		    driver = readdriver,
@@ -55,13 +53,6 @@ def main():
 		new_data.write.mode("append").format("com.databricks.spark.avro").save(destination_path + "raw/" + table)
 		dfmax = df.agg({"last_update_date": "max"})
 		dfmax.write.mode("overwrite").option("timestampFormat", "yyyy-MM-dd HH:mm:ss").format("csv").save(destination_path + "last_updated_dates/" + table)
-
-		# Debugging purposes:
-		# Just a print statement to see if the dataframe transferred sucessfully
-		# print df.show()
-		# Just a print statement to see if there are any new rows
-		# print new_data.show(10)
-
 
 
 

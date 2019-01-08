@@ -32,7 +32,6 @@ def main():
 
     final_DF=promotion_df.join(sales_DF, "promotion_id").drop(sales_DF.promotion_id)
 
-    # MAKE SURE YOU CREATE THE DIRECTORY FIRST, BECAUSE THIS IS APPENDING
     final_DF.coalesce(2).write.mode("append").format("parquet").save(destination_path)
 
     # *******************************************************************

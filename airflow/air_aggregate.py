@@ -13,21 +13,18 @@ import datetime
 
 def main():
 
-	# Set up spark context
-
-	spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
-
+	# Set up paths
 	source_path_cleansed = "s3a://ashicleansed/foodmart/"
 	source_path_raw = "s3a://ashiraw/foodmart/"
 	destination_path = "s3a://ashicurated/foodmart/"
 
+	# Set up spark context
+	spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
+
 	# Load files
 	parquet_df = spark.read.format("parquet").load(source_path_cleansed)
-
 	timeByDay_df = spark.read.format("com.databricks.spark.avro").load(source_path_raw + "raw/time_by_day/")
-
 	store_df = spark.read.format("com.databricks.spark.avro").load(source_path_raw + "raw/store/")
-
 	prq_time_store_df = parquet_df.join(timeByDay_df, "time_id").join(store_df, "store_id")
 
 	# Cut out all the junk data
