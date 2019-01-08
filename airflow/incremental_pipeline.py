@@ -2,7 +2,7 @@
 # @Date:   2019-01-02T14:02:10-08:00
 # @Filename: pipeline.py
 # @Last modified by:   Arthur Shing
-# @Last modified time: 2019-01-04T15:10:02-08:00
+# @Last modified time: 2019-01-07T10:35:53-08:00
 
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
@@ -57,7 +57,7 @@ start = DummyOperator(
 # )
 
 incremental_load = BashOperator(
-    task_id='initial_load',
+    task_id='incremental_load',
     bash_command='spark-submit --jars {{ params.jars }} --packages {{ params.pkgs }} {{ params.file }}',
     params={'jars': '/usr/local/bin/aws-java-sdk-1.7.4.jar,/usr/local/bin/hadoop-aws-2.7.3.jar', 'pkgs': 'mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0', 'file': script_home + 'air_incremental_load.py'},
     dag=dag
