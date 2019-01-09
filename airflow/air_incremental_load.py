@@ -4,6 +4,7 @@ from pyspark.sql import SparkSession, SQLContext
 import datetime
 import time
 import os
+import boto3
 
 
 # Run script by using:
@@ -49,6 +50,11 @@ def main():
 
 		# Get the new rows (where the column last_update_date is greater (Newer) than the previously logged last_update_date)
 		new_data = df.where(df.last_update_date > last_date)
+
+		# If new data, put a flag into s3 that will be checked for in the dag
+		if (new_data.count() > 0):
+			s3 = boto3.resource('s3')
+			s3.Object('ashiraw', 'foodmart/yes_new_data').put(Body="1")
 
 		new_data.write.mode("append").format("com.databricks.spark.avro").save(destination_path + "raw/" + table)
 		dfmax = df.agg({"last_update_date": "max"})

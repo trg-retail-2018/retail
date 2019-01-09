@@ -2,7 +2,7 @@
 # @Date:   2019-01-02T14:02:10-08:00
 # @Filename: pipeline.py
 # @Last modified by:   Arthur Shing
-# @Last modified time: 2019-01-09T11:17:09-08:00
+# @Last modified time: 2019-01-09T12:13:26-08:00
 
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
@@ -10,6 +10,8 @@ from airflow.operators.dummy_operator import DummyOperator
 from airflow.operators.python_operator import ShortCircuitOperator
 from datetime import datetime, timedelta
 from pyspark.sql import SparkSession
+import boto3
+
 
 
 import os
@@ -53,41 +55,17 @@ start = DummyOperator(
 
 
 def check_new_data():
-    spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
-    # Set parameters for reading
-    hostname = "localhost"
-    port = "3306"
-    connection = "jdbc:mysql://"
-    dbname = "foodmart"
-    readdriver = "com.mysql.jdbc.Driver"
-    username = "root"
-    password = "mysql"
-    destination_path = "s3a://ashiraw/foodmart/"
-
-    tablenames = ["promotion", "sales_fact_1997", "sales_fact_1998"]
-
-    sum_new_data = 0
-    for table in tablenames:
-        # Try loading the last updated dates
-        try:
-            last_date_table = spark.read.csv(destination_path + "last_updated_dates/" + table)
-        except e:
-            print("Could not find path to last updated dates files")
-        # Convert last updated dates from string to datetime
-        last_date = datetime.strptime(str(last_date_table.first()._c0), '%Y-%m-%d %H:%M:%S')
-        # Create dataframe. Mysqlconnector package is required for the driver
-        df = spark.read.format("jdbc").options(
-            url= connection + hostname + ':' + port + '/' + dbname,
-            driver = readdriver,
-            dbtable = table,
-            user=username,
-            password=password).load()
-        new_data = df.where(df.last_update_date > last_date)
-        sum_new_data += new_data.count()
-    if(sum_new_data > 0):
-        return True
+    s3 = boto3.resource('s3')
+    try:
+        s3.Object('ashiraw', 'foodmart/yes_new_data').load()
+    except botocore.exceptions.ClientError as e:
+        if e.response['Error']['Code'] == "404":
+            return False
+        else:
+            raise
     else:
-        return False
+        s3.Object('ashiraw', 'foodmart/yes_new_data').delete()
+        return True
 
         # Get the new rows (where the column last_update_date is greater (Newer) than the previously logged last_update_date)
 
