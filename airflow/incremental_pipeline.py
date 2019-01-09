@@ -2,12 +2,14 @@
 # @Date:   2019-01-02T14:02:10-08:00
 # @Filename: pipeline.py
 # @Last modified by:   Arthur Shing
-# @Last modified time: 2019-01-07T10:35:53-08:00
+# @Last modified time: 2019-01-09T11:17:09-08:00
 
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
 from airflow.operators.dummy_operator import DummyOperator
+from airflow.operators.python_operator import ShortCircuitOperator
 from datetime import datetime, timedelta
+from pyspark.sql import SparkSession
 
 
 import os
@@ -49,12 +51,53 @@ start = DummyOperator(
 	dag=dag
 )
 
-# initial_load = BashOperator(
-#     task_id='initial_load',
-#     bash_command='spark-submit --jars {{ params.jars }} --packages {{ params.pkgs }} {{ params.file }}',
-#     params={'jars': '/usr/local/bin/aws-java-sdk-1.7.4.jar,/usr/local/bin/hadoop-aws-2.7.3.jar', 'pkgs': 'mysql:mysql-connector-java:5.1.39,com.databricks:spark-avro_2.11:4.0.0', 'file': script_home + 'air_initial_load.py'},
-#     dag=dag
-# )
+
+def check_new_data():
+    spark = SparkSession.builder.master("local").appName("Initial Load").getOrCreate()
+    # Set parameters for reading
+    hostname = "localhost"
+    port = "3306"
+    connection = "jdbc:mysql://"
+    dbname = "foodmart"
+    readdriver = "com.mysql.jdbc.Driver"
+    username = "root"
+    password = "mysql"
+    destination_path = "s3a://ashiraw/foodmart/"
+
+    tablenames = ["promotion", "sales_fact_1997", "sales_fact_1998"]
+
+    sum_new_data = 0
+    for table in tablenames:
+        # Try loading the last updated dates
+        try:
+            last_date_table = spark.read.csv(destination_path + "last_updated_dates/" + table)
+        except e:
+            print("Could not find path to last updated dates files")
+        # Convert last updated dates from string to datetime
+        last_date = datetime.strptime(str(last_date_table.first()._c0), '%Y-%m-%d %H:%M:%S')
+        # Create dataframe. Mysqlconnector package is required for the driver
+        df = spark.read.format("jdbc").options(
+            url= connection + hostname + ':' + port + '/' + dbname,
+            driver = readdriver,
+            dbtable = table,
+            user=username,
+            password=password).load()
+        new_data = df.where(df.last_update_date > last_date)
+        sum_new_data += new_data.count()
+    if(sum_new_data > 0):
+        return True
+    else:
+        return False
+
+        # Get the new rows (where the column last_update_date is greater (Newer) than the previously logged last_update_date)
+
+
+check_for_data = ShortCircuitOperator(
+    task_id='check_for_data',
+    python_callable=check_new_data,
+    dag=dag
+)
+
 
 incremental_load = BashOperator(
     task_id='incremental_load',
@@ -96,4 +139,4 @@ end = DummyOperator(
         dag=dag
 )
 
-start >> incremental_load >> promotion_filter >> aggregate >> load_snowflake >> query_snowflake >> end
+start >> check_for_data >> incremental_load >> promotion_filter >> aggregate >> load_snowflake >> query_snowflake >> end
