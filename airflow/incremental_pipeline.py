@@ -2,7 +2,7 @@
 # @Date:   2019-01-02T14:02:10-08:00
 # @Filename: pipeline.py
 # @Last modified by:   Arthur Shing
-# @Last modified time: 2019-01-09T12:13:26-08:00
+# @Last modified time: 2019-01-09T12:25:55-08:00
 
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
@@ -11,6 +11,7 @@ from airflow.operators.python_operator import ShortCircuitOperator
 from datetime import datetime, timedelta
 from pyspark.sql import SparkSession
 import boto3
+import botocore
 
 
 
