@@ -28,8 +28,14 @@ def main():
 	# Set the target path - "s3a://[bucketname]/[folder]/"
 	destination_path = "s3a://ashiraw/foodmart/"
 
-	# destination_path = "/mnt/c/Users/Arthur/Documents/retail_ensoftek/buckets/"
-
+	# First, remove leftover files from previous incremental load
+	s3 = boto3.resource('s3')
+    try:
+        s3.Object('ashiraw', 'foodmart/yes_new_data').load()
+    except botocore.exceptions.ClientError as e:
+		pass
+	else:
+		s3.Object('ashiraw', 'foodmart/yes_new_data').delete()
 
 	"""
 	Instead of loading them uglily, here is a pretty version in a for-loop
