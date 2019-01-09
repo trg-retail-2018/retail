@@ -5,6 +5,7 @@ import datetime
 import time
 import os
 import boto3
+import botocore
 
 
 # Run script by using:

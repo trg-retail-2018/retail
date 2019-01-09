@@ -4,6 +4,7 @@ from pyspark.sql import SparkSession, SQLContext
 import datetime
 import shutil
 import boto3
+import botocore
 from os.path import expanduser
 
 
