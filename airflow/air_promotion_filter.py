@@ -32,7 +32,7 @@ def main():
 
     final_DF=promotion_df.join(sales_DF, "promotion_id").drop(sales_DF.promotion_id)
 
-    final_DF.coalesce(2).write.mode("append").format("parquet").save(destination_path)
+    final_DF.coalesce(2).write.mode("overwrite").format("parquet").save(destination_path)
 
     # *******************************************************************
     # *******************************************************************
