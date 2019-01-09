@@ -30,9 +30,9 @@ def main():
 
 	# First, remove leftover files from previous incremental load
 	s3 = boto3.resource('s3')
-    try:
-        s3.Object('ashiraw', 'foodmart/yes_new_data').load()
-    except botocore.exceptions.ClientError as e:
+	try:
+        	s3.Object('ashiraw', 'foodmart/yes_new_data').load()
+	except botocore.exceptions.ClientError as e:
 		pass
 	else:
 		s3.Object('ashiraw', 'foodmart/yes_new_data').delete()
