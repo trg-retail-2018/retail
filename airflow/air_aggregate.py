@@ -48,6 +48,9 @@ def main():
 	# Michael did something convoluted here, we're just going to equijoin
 	# Join on multiple columns
 	csv_df = weekday_DF.join(weekend_DF,["promotion_id", "region_id", "the_year", "the_month", "cost"], "fullouter")
+	csv_df.na.fill(0, Seq("weekend_sales"))
+	csv_df.na.fill(0, Seq("weekday_sales"))
+
 
 	# Coalesce(6) works for me
 	csv_df.coalesce(6).write.mode("overwrite").format("csv").save(destination_path + "aggregate")
