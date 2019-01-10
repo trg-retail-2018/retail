@@ -2,7 +2,7 @@
 # @Date:   2019-01-02T14:02:10-08:00
 # @Filename: pipeline.py
 # @Last modified by:   Arthur Shing
-# @Last modified time: 2019-01-09T12:25:55-08:00
+# @Last modified time: 2019-01-09T14:45:33-08:00
 
 from airflow import DAG
 from airflow.operators.bash_operator import BashOperator
@@ -118,4 +118,4 @@ end = DummyOperator(
         dag=dag
 )
 
-start >> check_for_data >> incremental_load >> promotion_filter >> aggregate >> load_snowflake >> query_snowflake >> end
+start >> incremental_load >> check_for_data >> promotion_filter >> aggregate >> load_snowflake >> query_snowflake >> end

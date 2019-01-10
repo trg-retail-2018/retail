@@ -1,0 +1,5 @@
+insert into promotion (promotion_id) values (1897);
+insert into sales_fact_1998 (product_id, time_id, customer_id, promotion_id, store_id, store_sales, store_cost, unit_sales) values (27, 748, 1500, 1897, 23, 10000.0, 0, 3.0);
+insert into sales_fact_1998 (product_id, time_id, customer_id, promotion_id, store_id, store_sales, store_cost, unit_sales) values (27, 748, 1500, 1897, 23, 20000.0, 0, 3.0);
+insert into sales_fact_1997 (product_id, time_id, customer_id, promotion_id, store_id, store_sales, store_cost, unit_sales) values (27, 748, 1500, 1897, 23, 30000.0, 0, 3.0);
+insert into sales_fact_1997 (product_id, time_id, customer_id, promotion_id, store_id, store_sales, store_cost, unit_sales) values (27, 748, 1500, 1897, 23, 40000.0, 0, 3.0);
